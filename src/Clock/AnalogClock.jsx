@@ -1,7 +1,6 @@
-// HighlyRealisticAnalogClock.js
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-const HighlyRealisticAnalogClock = () => {
+const AnalogClock = () => {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -15,19 +14,19 @@ const HighlyRealisticAnalogClock = () => {
 
   const secondHandStyle = {
     transform: `rotate(${seconds * 6}deg)`,
-    transition: 'transform 0.1s rotetate ease-in-out',
+    transition: 'transform 0.1s rotate ease-in-out',
   };
   const minuteHandStyle = {
     transform: `rotate(${minutes * 6 + seconds * 0.1}deg)`,
-    transition: 'transform 0.2s rotetate ease-in-out',
+    transition: 'transform 0.2s rotate ease-in-out',
   };
   const hourHandStyle = {
     transform: `rotate(${hours * 30 + minutes * 0.5}deg)`,
-    transition: 'transform 0.3s rotetate ease-in-out',
+    transition: 'transform 0.3s rotate ease-in-out',
   };
 
   return (
-    <div style={styles.clockContainer}>
+    <div className="flex items-center justify-center" style={styles.clockContainer}>
       <div style={styles.clockFace}>
         {/* Hour Marks and Numbers */}
         {[...Array(12)].map((_, i) => (
@@ -72,25 +71,25 @@ const styles = {
   },
   clockFace: {
     position: 'relative',
-    width: '300px',
-    height: '300px',
+    width: '500px',   // Increased width
+    height: '500px',  // Increased height
     borderRadius: '50%',
-    border: '10px solid #333',
-    backgroundColor: '#f0f0f0',
-    boxShadow: 'inset 0 0 10px rgba(0,0,0,0.3), 0 8px 12px rgba(0,0,0,0.5)',
+    border: '14px solid #333', // Thicker border for larger size
+    backgroundColor: '#ffffff',
+    boxShadow: 'inset 0 0 15px rgba(0,0,0,0.3), 0 10px 14px rgba(0,0,0,0.5)',
   },
   tick: {
     position: 'absolute',
     width: '2px',
-    height: '10px',
+    height: '20px',         // Increased height for visibility
     backgroundColor: '#555',
-    top: '15px',
+    top: '35px',           // Positioned closer to the edge for larger clock
     left: '50%',
-    transformOrigin: 'center 130px',
+    transformOrigin: 'center 200px',  // Adjusted to fit larger face
   },
   hourTick: {
-    height: '15px',
-    width: '4px',
+    height: '25px',         // Taller for hour ticks
+    width: '5px',           // Thicker for hour ticks
     backgroundColor: '#333',
   },
   minuteTick: {
@@ -107,9 +106,9 @@ const styles = {
     alignItems: 'flex-start',
   },
   hourNumber: {
-    fontSize: '1.2em',
+    fontSize: '1.5em',       // Increased font size
     color: '#333',
-    transform: 'translateY(-130%)',
+    transform: 'translateY(-160%)', // Positioned closer to the edge
   },
   hand: {
     position: 'absolute',
@@ -118,37 +117,37 @@ const styles = {
     transformOrigin: 'bottom',
   },
   hourHand: {
-    width: '8px',
-    height: '70px',
+    width: '10px',
+    height: '120px',  // Increased height for larger size
     backgroundColor: '#333',
     borderRadius: '4px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+    boxShadow: '0 5px 7px rgba(0, 0, 0, 0.3)',
     zIndex: 3,
   },
   minuteHand: {
-    width: '4px',
-    height: '100px',
+    width: '6px',
+    height: '170px', // Increased height for larger size
     backgroundColor: '#555',
-    borderRadius: '2px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)',
+    borderRadius: '3px',
+    boxShadow: '0 5px 7px rgba(0, 0, 0, 0.2)',
     zIndex: 2,
   },
   secondHand: {
-    width: '2px',
-    height: '110px',
+    width: '3px',
+    height: '200px', // Increased height for larger size
     backgroundColor: '#e74c3c',
-    borderRadius: '1px',
+    borderRadius: '1.5px',
     zIndex: 1,
   },
   centerDot: {
-    width: '14px',
-    height: '14px',
+    width: '20px', // Increased size for larger clock
+    height: '20px', 
     backgroundColor: '#333',
     borderRadius: '50%',
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: 'translate(-50%, -50%)', // Centers the dot perfectly
+    transform: 'translate(-50%, -50%)',
     zIndex: 4,
     boxShadow: '0 0 5px rgba(0, 0, 0, 0.4)',
   },
@@ -163,4 +162,4 @@ const styles = {
   },
 };
 
-export default HighlyRealisticAnalogClock;
+export default AnalogClock;
