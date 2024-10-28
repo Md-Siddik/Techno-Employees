@@ -3,8 +3,9 @@ import { useState } from 'react';
 const RightSideBar = ({ userRole }) => {
     const [activeTab, setActiveTab] = useState("Recent");
 
+    console.log(userRole);
     const isAdmin = userRole === "admin";
-    const tabs = isAdmin ? ["Recent", "Reports", "Analytics", "Settings"] : ["Notifications", "Updates"];
+    const tabs = isAdmin ? ["Recent", "Reports", "Analytics", "Settings"] : ["All", "Notifications", "Updates"];
 
     const sideBarContent = isAdmin
         ? {
@@ -26,6 +27,12 @@ const RightSideBar = ({ userRole }) => {
             ],
         }
         : {
+            All: [
+                { id: 1, title: "Message", time: "10 mins ago", description: "You have a new message" },
+                { id: 2, title: "Update", time: "1 hr ago", description: "System update available" },
+                { id: 3, title: "App Version", time: "Today", description: "New version released" },
+                { id: 4, title: "Feature", time: "Last Week", description: "New feature added" },
+            ],
             Notifications: [
                 { id: 1, title: "Message", time: "10 mins ago", description: "You have a new message" },
                 { id: 2, title: "Update", time: "1 hr ago", description: "System update available" },

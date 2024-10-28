@@ -23,7 +23,7 @@ const App = () => {
   const adminRouter = createBrowserRouter([
     {
       path: "/",
-      element: <Main />,
+      element: <Main isAdmin={true} />,
       errorElement: <div>404 Not Found</div>,
       children: [
         {
@@ -38,7 +38,7 @@ const App = () => {
   const employeeRouter = createBrowserRouter([
     {
       path: "/",
-      element: <Main />,
+      element: <Main isAdmin={false} />,
       errorElement: <div>404 Not Found</div>,
       children: [
         {

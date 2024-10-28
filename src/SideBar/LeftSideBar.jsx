@@ -3,8 +3,9 @@ import { useState } from 'react';
 const LeftSideBar = ({ userRole }) => {
     const [activeTab, setActiveTab] = useState("All");
 
+    console.log(userRole);
     const isAdmin = userRole === "admin";
-    const tabs = isAdmin ? ["All", "Email", "Orders", "Waiting", "Schedule"] : ["MyTasks", "Messages"];
+    const tabs = isAdmin ? ["All", "Email", "Orders", "Waiting", "Schedule"] : ["All", "MyTasks", "Messages"];
 
     const notifications = isAdmin
         ? {
@@ -32,6 +33,12 @@ const LeftSideBar = ({ userRole }) => {
             ],
         }
         : {
+            All: [
+                { id: 1, name: "Project A", time: "Due Today", description: "Complete Documentation" },
+                { id: 2, name: "Task B", time: "Tomorrow", description: "Prepare Presentation" },
+                { id: 3, name: "Manager", time: "09:00 AM", description: "Please review the document." },
+                { id: 4, name: "Team Lead", time: "11:30 AM", description: "Update the project status." },
+            ],
             MyTasks: [
                 { id: 1, name: "Project A", time: "Due Today", description: "Complete Documentation" },
                 { id: 2, name: "Task B", time: "Tomorrow", description: "Prepare Presentation" },
