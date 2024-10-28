@@ -10,12 +10,11 @@ const Home = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-gray-900 relative">
-            
+        <div>
             <div className="relative">
                 {/* Digital Clock */}
                 <div 
-                    onClick={handleSwap} // Click on the digital clock to swap
+                    onClick={isSwapped ? handleSwap : null}
                     className={`${
                         isSwapped ? 'absolute bottom-[20%] right-[-50%] transform scale-[40%] z-10' : 'relative'
                     } transition-all duration-500 cursor-pointer`}
@@ -25,10 +24,10 @@ const Home = () => {
 
                 {/* Analog Clock */}
                 <div 
-                    onClick={handleSwap} // Click on the analog clock to swap
+                    onClick={isSwapped ? null : handleSwap } // Click on the analog clock to swap only when it is swapped
                     className={`${
                         isSwapped ? 'relative scale-[100%]' : 'absolute top-[-100%] right-[-40%] transform scale-50 scale-[30%] z-10'
-                    } transition-all duration-500 cursor-pointer`}
+                    } transition-all duration-500`}
                 >
                     <AnalogClock />
                 </div>
