@@ -3,7 +3,6 @@ import { useState } from 'react';
 const RightSideBar = ({ userRole }) => {
     const [activeTab, setActiveTab] = useState("Recent");
 
-    console.log(userRole);
     const isAdmin = userRole === "admin";
     const tabs = isAdmin ? ["Recent", "Reports", "Analytics", "Settings"] : ["All", "Notifications", "Updates"];
 

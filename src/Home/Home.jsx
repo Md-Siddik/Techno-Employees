@@ -2,6 +2,8 @@ import { useState } from 'react';
 import AnalogClock from '../Components/Clock/AnalogClock';
 import DigitalClock from '../Components/Clock/DigitalClock';
 import Calendar from '../Components/Calendar/Calendar';
+import EmailViewer from '../Components/EmailViewer/EmailViewer';
+import EmailList from '../Components/EmailViewer/EmailList';
 
 const Home = () => {
     const [isSwapped, setIsSwapped] = useState(false);
@@ -11,7 +13,7 @@ const Home = () => {
     };
 
     return (
-        <div className='w-full px-20'>
+        <div className='w-full max-h-screen px-20 py-10 overflow-y-scroll'>
             {/* <div className='w-fit mx-auto'>
                 <div className="relative">
                     <div
@@ -35,7 +37,8 @@ const Home = () => {
                 <Calendar />
             </div> */}
             <div>
-                
+                <EmailViewer />
+                {/* <EmailList /> */}
             </div>
         </div>
     );

@@ -3,7 +3,6 @@ import { useState } from 'react';
 const LeftSideBar = ({ userRole }) => {
     const [activeTab, setActiveTab] = useState("All");
 
-    console.log(userRole);
     const isAdmin = userRole === "admin";
     const tabs = isAdmin ? ["All", "Email", "Orders", "Waiting", "Schedule"] : ["All", "MyTasks", "Messages"];
 
