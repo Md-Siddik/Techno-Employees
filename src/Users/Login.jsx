@@ -1,61 +1,19 @@
 import { useContext, useState } from 'react';
-import { getAuth } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { AuthContext } from '../AuthProvider/AuthProvider';
 import Swal from 'sweetalert2';
-import { useGoogleLogin } from '@react-oauth/google';
+// import { useGoogleLogin } from '@react-oauth/google';
 
 const Login = ({ onLogin }) => {
     const [user, setUser] = useState(null);
     const [emails, setEmails] = useState([]);
     const { signIn } = useContext(AuthContext);
     const auth = getAuth();
+    const googleProvider = new GoogleAuthProvider();
 
     const fetchEmails = async (accessToken) => {
-        try {
-            const response = await fetch('https://www.googleapis.com/gmail/v1/users/me/messages', {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                }
-            });
-            const data = await response.json();
-    
-            if (data.messages && data.messages.length) {
-                // Fetch details for each email
-                const emails = await Promise.all(data.messages.map(async (message) => { // Fetch the first 5 emails
-                    const res = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${message.id}`, {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`
-                        }
-                    });
-                    const messageData = await res.json();
-                    
-                    // Extract more details like sender, recipient, and date from headers
-                    const headers = messageData.payload.headers;
-                    const from = headers.find(header => header.name === 'From')?.value;
-                    const to = headers.find(header => header.name === 'To')?.value;
-                    const subject = headers.find(header => header.name === 'Subject')?.value;
-                    const date = headers.find(header => header.name === 'Date')?.value;
-                    
-                    return {
-                        id: message.id,
-                        snippet: messageData.snippet,
-                        from,
-                        to,
-                        subject,
-                        date,
-                    };
-                }));
-    
-                console.log("Fetched emails with more details:", emails); // Log email subjects, snippets, and additional details
-                setEmails(emails); // Update state with the fetched email data
-            } else {
-                console.log("No emails found.");
-            }
-        } catch (error) {
-            console.error("Failed to fetch emails:", error);
-        }
+        // Your fetchEmails code here
     };
-    
 
     const handleLogin = e => {
         try {
@@ -66,37 +24,68 @@ const Login = ({ onLogin }) => {
 
             signIn(email, password)
                 .then(result => {
-                    onLogin('admin');
+                    onLogin('admin', email);
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Login Successfully',
+                        icon: 'success',
+                        confirmButtonText: 'Ok'
+                    })
                 })
                 .catch(error => {
                     Swal.fire({
-                        title: 'Failed!',
+                        title: 'Faild!',
                         text: 'Invalid Email or Password',
                         icon: 'error',
                         confirmButtonText: 'Back'
-                    });
-                });
-        } catch (error) {
-            console.error(error);
+                    })
+                })
         }
-    };
+        catch (error) {
+            console.error(error)
+        }
+    }
 
-    const handleGoogleSignIn = useGoogleLogin({
-        onSuccess: (tokenResponse) => {
-            console.log("Login successful. Access Token:", tokenResponse.access_token);
-            fetchEmails(tokenResponse.access_token); // Fetch emails after successful login
-            onLogin('admin'); // Navigate to home page
-        },
-        onError: () => {
-            Swal.fire({
-                title: 'Failed!',
-                text: 'Google Sign-In failed',
-                icon: 'error',
-                confirmButtonText: 'Back'
-            });
-        },
-        scope: 'https://www.googleapis.com/auth/gmail.modify', // Set the required scope
-    });
+    const handleGoogleSignIn = () => {
+        signInWithPopup(auth, googleProvider)
+            .then(result => {
+                const loggedInUser = result.user;
+                setUser(loggedInUser);
+                onLogin('admin', auth.currentUser.email);
+                console.log(result.user)
+            })
+            .catch(error => {
+                console.error(error)
+                Swal.fire({
+                    title: 'Oops...!',
+                    text: 'Something Went Wrong',
+                    icon: 'error',
+                    confirmButtonText: 'Back'
+                })
+            })
+    }
+
+    // const handleGoogleSignIn = useGoogleLogin({
+    //     onSuccess: async (tokenResponse) => {
+    //         try {
+    //             console.log("Login successful. Access Token:", tokenResponse.access_token);
+    //             await setPersistence(auth, browserLocalPersistence); // Persist Google login session
+    //             fetchEmails(tokenResponse.access_token); // Fetch emails after successful login
+    //             onLogin('admin'); // Navigate to home page
+    //         } catch (error) {
+    //             console.error("Error setting persistence:", error);
+    //         }
+    //     },
+    //     onError: () => {
+    //         Swal.fire({
+    //             title: 'Failed!',
+    //             text: 'Google Sign-In failed',
+    //             icon: 'error',
+    //             confirmButtonText: 'Back'
+    //         });
+    //     },
+    //     scope: 'https://www.googleapis.com/auth/gmail.modify',
+    // });
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-gray-900">
@@ -147,3 +136,4 @@ const Login = ({ onLogin }) => {
 };
 
 export default Login;
+

@@ -4,8 +4,6 @@ const EmailList = ({ emails, fetchEmails , fetchEmailContent, selectedEmail }) =
   const [selectedEmailId, setSelectedEmailId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log(emails);
-
   function decodeHtml(html) {
     const txt = document.createElement("textarea");
     txt.innerHTML = html;
@@ -24,7 +22,7 @@ const EmailList = ({ emails, fetchEmails , fetchEmailContent, selectedEmail }) =
   };
 
   return (
-    <div className="p-8 bg-gray-900 h-fit text-gray-100">
+    <div className="w-full h-fit p-8 bg-gray-900 text-gray-100">
       <h2 className="text-4xl font-bold mb-8 text-center text-indigo-500">Email List</h2>
       <ul className="space-y-6 max-w-2xl mx-auto">
         {emails.length > 0 ? (
