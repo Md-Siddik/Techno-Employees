@@ -55,9 +55,9 @@ const EmailViewer = () => {
   };
 
   return (
-    <GoogleOAuthProvider clientId="469961376322-8q920q3e61q07bmg35k07r9ak269ehgt.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <div>
-        <GmailSignIn fetchEmails={fetchEmails} />
+        {/* <GmailSignIn fetchEmails={fetchEmails} /> */}
         <EmailList emails={emails} fetchEmailContent={fetchEmailContent} selectedEmail={selectedEmail} accessToken={accessToken} />
       </div>
     </GoogleOAuthProvider>

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-const EmailList = ({ emails = [], fetchEmailContent, selectedEmail }) => {
+const EmailList = ({ emails, fetchEmails , fetchEmailContent, selectedEmail }) => {
   const [selectedEmailId, setSelectedEmailId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  console.log(emails);
 
   function decodeHtml(html) {
     const txt = document.createElement("textarea");

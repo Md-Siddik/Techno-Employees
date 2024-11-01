@@ -1,5 +1,5 @@
 import { StrictMode, useState } from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom/client';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -9,6 +9,8 @@ import Main from './Main/Main';
 import Home from './Home/Home';
 import LoginForm from './Users/Login'; // Import employee interface
 import EmployeeHome from './Home/EmployeeHome';
+import AuthProvider from './AuthProvider/AuthProvider';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -50,7 +52,7 @@ const App = () => {
   ]);
 
   return (
-    <StrictMode>
+    <AuthProvider>
       {isLoggedIn ? (
         userRole === 'admin' ? (
           <RouterProvider router={adminRouter} /> // Admin interface
@@ -60,8 +62,14 @@ const App = () => {
       ) : (
         <LoginForm onLogin={handleLogin} /> // Pass handleLogin to LoginForm
       )}
-    </StrictMode>
+    </AuthProvider>
   );
 };
 
-createRoot(document.getElementById('root')).render(<App />);
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <App />
+    </GoogleOAuthProvider>
+  </StrictMode>
+);
