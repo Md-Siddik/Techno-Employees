@@ -5,6 +5,8 @@ import Calendar from '../Components/Calendar/Calendar';
 import EmailViewer from '../Components/EmailViewer/EmailViewer';
 import EmailList from '../Components/EmailViewer/EmailList';
 import axios from 'axios';
+import { getAuth } from 'firebase/auth';
+import Swal from 'sweetalert2';
 
 const Home = ({ userEmail }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(
@@ -17,9 +19,87 @@ const Home = ({ userEmail }) => {
     const [emails, setEmails] = useState([]);
     const [selectedEmail, setSelectedEmail] = useState(null);
     const [accessToken, setAccessToken] = useState(null);
+    const auth = getAuth();
 
     const handleSwap = () => {
         setIsSwapped(!isSwapped);
+    };
+
+    const fetchEmails = async (accessToken) => {
+        try {
+            const response = await fetch('https://www.googleapis.com/gmail/v1/users/me/messages', {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            });
+            const data = await response.json();
+
+            if (data.messages && data.messages.length) {
+                // Fetch details for each email
+                const emails = await Promise.all(data.messages.slice(0, 100).map(async (message) => { // Fetch the first 5 emails
+                    const res = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${message.id}`, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`
+                        }
+                    });
+                    const messageData = await res.json();
+
+                    // Extract more details like sender, recipient, and date from headers
+                    const headers = messageData.payload.headers;
+                    const from = headers.find(header => header.name === 'From')?.value;
+                    const to = headers.find(header => header.name === 'To')?.value;
+                    const subject = headers.find(header => header.name === 'Subject')?.value;
+                    const date = headers.find(header => header.name === 'Date')?.value;
+
+                    return {
+                        id: message.id,
+                        snippet: messageData.snippet,
+                        from,
+                        to,
+                        subject,
+                        date,
+                    };
+                }));
+
+                console.log("Fetched emails with more details:", emails); // Log email subjects, snippets, and additional details
+                
+                // try {
+                //     const response = await fetch('http://localhost:5000/allEmails', {
+                //         method: 'POST',
+                //         headers: {
+                //             'Content-Type': 'application/json'
+                //         },
+                //         body: JSON.stringify(emails)
+                //     });
+                    
+                //     if (!response.ok) {
+                //         throw new Error(`Server error: ${response.statusText}`);
+                //     }
+                
+                //     const data = await response.json();
+                //     console.log("Email uploaded successfully:", data);
+                // } catch (error) {
+                //     console.error("Error uploading emails:", error);
+                //     Swal.fire({
+                //         title: 'Failed!',
+                //         text: 'Email cannot be uploaded. Check server connection and try again.',
+                //         icon: 'error',
+                //         confirmButtonText: 'Close'
+                //     });
+                // }
+                
+                
+            } else {
+                Swal.fire({
+                    title: 'Failed!',
+                    text: 'No Email Found',
+                    icon: 'error',
+                    confirmButtonText: 'Close'
+                })
+            }
+        } catch (error) {
+            console.error("Failed to fetch emails:", error);
+        }
     };
 
     const fetchEmailContent = async (emailId) => {
