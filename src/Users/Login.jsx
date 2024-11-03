@@ -4,6 +4,10 @@ import { AuthContext } from '../AuthProvider/AuthProvider';
 import Swal from 'sweetalert2';
 import { useGoogleLogin } from '@react-oauth/google';
 
+
+import { linkWithPopup, fetchSignInMethodsForEmail, signInWithCredential } from 'firebase/auth';
+
+
 const Login = ({ onLogin }) => {
     const [user, setUser] = useState(null);
     const [emails, setEmails] = useState([]);
@@ -63,62 +67,71 @@ const Login = ({ onLogin }) => {
 
     // ------ For gmail inbox ------
 
-    const fetchEmails = async (accessToken) => {
-        try {
-            const response = await fetch('https://www.googleapis.com/gmail/v1/users/me/messages', {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                }
-            });
-            const data = await response.json();
+    // const fetchEmails = async (accessToken) => {
+    //     try {
+    //         const response = await fetch('https://www.googleapis.com/gmail/v1/users/me/messages', {
+    //             headers: {
+    //                 Authorization: `Bearer ${accessToken}`
+    //             }
+    //         });
+    //         const data = await response.json();
 
-            if (data.messages && data.messages.length) {
-                // Fetch details for each email
-                const emails = await Promise.all(data.messages.slice(0, 10).map(async (message) => { // Fetch the first 5 emails
-                    const res = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${message.id}`, {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`
-                        }
-                    });
-                    const messageData = await res.json();
+    //         if (data.messages && data.messages.length) {
+    //             // Fetch details for each email
+    //             const emails = await Promise.all(data.messages.slice(0, 10).map(async (message) => { // Fetch the first 5 emails
+    //                 const res = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${message.id}`, {
+    //                     headers: {
+    //                         Authorization: `Bearer ${accessToken}`
+    //                     }
+    //                 });
+    //                 const messageData = await res.json();
 
-                    // Extract more details like sender, recipient, and date from headers
-                    const headers = messageData.payload.headers;
-                    const from = headers.find(header => header.name === 'From')?.value;
-                    const to = headers.find(header => header.name === 'To')?.value;
-                    const subject = headers.find(header => header.name === 'Subject')?.value;
-                    const date = headers.find(header => header.name === 'Date')?.value;
+    //                 // Extract more details like sender, recipient, and date from headers
+    //                 const headers = messageData.payload.headers;
+    //                 const from = headers.find(header => header.name === 'From')?.value;
+    //                 const to = headers.find(header => header.name === 'To')?.value;
+    //                 const subject = headers.find(header => header.name === 'Subject')?.value;
+    //                 const date = headers.find(header => header.name === 'Date')?.value;
 
-                    return {
-                        id: message.id,
-                        snippet: messageData.snippet,
-                        from,
-                        to,
-                        subject,
-                        date,
-                    };
-                }));
+    //                 return {
+    //                     id: message.id,
+    //                     snippet: messageData.snippet,
+    //                     from,
+    //                     to,
+    //                     subject,
+    //                     date,
+    //                 };
+    //             }));
 
-                console.log("Fetched emails with more details:", emails); // Log email subjects, snippets, and additional details
-            } else {
-                Swal.fire({
-                    title: 'Failed!',
-                    text: 'No Email Found',
-                    icon: 'error',
-                    confirmButtonText: 'Close'
-                })
-            }
-        } catch (error) {
-            console.error("Failed to fetch emails:", error);
-        }
-    };
+    //             console.log("Fetched emails with more details:", emails); // Log email subjects, snippets, and additional details
+    //         } else {
+    //             Swal.fire({
+    //                 title: 'Failed!',
+    //                 text: 'No Email Found',
+    //                 icon: 'error',
+    //                 confirmButtonText: 'Close'
+    //             })
+    //         }
+    //     } catch (error) {
+    //         console.error("Failed to fetch emails:", error);
+    //     }
+    // };
     const googleSignIn = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
                 console.log("Login successful. Access Token:", tokenResponse.access_token);
-                await setPersistence(auth, browserLocalPersistence); // Persist Google login session
-                fetchEmails(tokenResponse.access_token); // Fetch emails after successful login
-                onLogin('admin'); // Navigate to home page
+    
+                // Persist Google login session
+                await setPersistence(auth, browserLocalPersistence);
+                
+                // Store access token in local storage
+                localStorage.setItem("googleAccessToken", tokenResponse.access_token);
+    
+                // Fetch emails after successful login
+                // fetchEmails(tokenResponse.access_token);
+    
+                // Navigate to home page as admin
+                onLogin('admin');
             } catch (error) {
                 console.error("Error setting persistence:", error);
             }
@@ -133,43 +146,106 @@ const Login = ({ onLogin }) => {
         },
         scope: 'https://www.googleapis.com/auth/gmail.modify',
     });
+
+    // const emailPasswordLogin = async (email, password) => {
+    //     try {
+    //         // Set persistence to persist session
+    //         await setPersistence(auth, browserLocalPersistence);
+
+    //         // Sign in with email and password
+    //         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    //         const user = userCredential.user;
+
+    //         console.log("Login successful. User:", user);
+
+    //         // Fetch Gmail API token using Firebase ID token
+    //         const token = await user.getIdToken();
+
+    //         // Use token to request Gmail API access if necessary
+    //         fetchEmails(token); // Assuming `fetchEmails` is a function to call the Gmail API
+
+    //         onLogin('admin'); // Navigate to home page or appropriate location
+
+    //     } catch (error) {
+    //         console.error("Error logging in with email and password:", error);
+    //         Swal.fire({
+    //             title: 'Failed!',
+    //             text: 'Email/Password Sign-In failed',
+    //             icon: 'error',
+    //             confirmButtonText: 'Back'
+    //         });
+    //     }
+    // };
+
+    // const handleLogin = async (e) => {
+    //     try {
+    //         e.preventDefault();
+    //         const form = new FormData(e.currentTarget);
+    //         const email = form.get('email');
+    //         const password = form.get('password');
     
-    const emailPasswordLogin = async (email, password) => {
-        try {
-          // Set persistence to persist session
-          await setPersistence(auth, browserLocalPersistence);
-      
-          // Sign in with email and password
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
-          const user = userCredential.user;
-      
-          console.log("Login successful. User:", user);
-      
-          // Fetch Gmail API token using Firebase ID token
-          const token = await user.getIdToken();
-      
-          // Use token to request Gmail API access if necessary
-          fetchEmails(token); // Assuming `fetchEmails` is a function to call the Gmail API
-      
-          onLogin('admin'); // Navigate to home page or appropriate location
-      
-        } catch (error) {
-          console.error("Error logging in with email and password:", error);
-          Swal.fire({
-            title: 'Failed!',
-            text: 'Email/Password Sign-In failed',
-            icon: 'error',
-            confirmButtonText: 'Back'
-          });
-        }
-      };
-      
+    //         // Step 1: Sign in with email and password
+    //         const result = await signInWithEmailAndPassword(auth, email, password);
+    
+    //         // Step 2: Check if Google is already linked
+    //         const googleProvider = new GoogleAuthProvider();
+    //         googleProvider.addScope('https://www.googleapis.com/auth/gmail.modify');
+    
+    //         const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+    
+    //         if (signInMethods.includes(GoogleAuthProvider.PROVIDER_ID)) {
+    //             // The user has previously linked a Google account, sign in with it directly
+    //             const credential = GoogleAuthProvider.credentialFromResult(result);
+    //             const accessToken = credential.accessToken;
+    //             console.log("Google Access Token:", accessToken);
+    //             fetchEmails(accessToken); // Fetch emails if needed
+    //             onLogin('admin', email);
+    //         } else {
+    //             // Link Google provider if not already linked
+    //             const linkedResult = await linkWithPopup(result.user, googleProvider);
+    //             const credential = GoogleAuthProvider.credentialFromResult(linkedResult);
+    //             const accessToken = credential.accessToken;
+    
+    //             console.log("Google Access Token:", accessToken);
+    //             fetchEmails(accessToken); // Fetch emails if needed
+    //             onLogin('admin', email);
+    //         }
+    
+    //         // Success feedback
+    //         Swal.fire({
+    //             title: 'Success!',
+    //             text: 'Login Successfully',
+    //             icon: 'success',
+    //             confirmButtonText: 'Ok'
+    //         });
+    
+    //     } catch (error) {
+    //         // Check if error is credential-already-in-use and handle it
+    //         if (error.code === 'auth/credential-already-in-use') {
+    //             Swal.fire({
+    //                 title: 'Error!',
+    //                 text: 'This Google account is already linked to another user.',
+    //                 icon: 'error',
+    //                 confirmButtonText: 'Back'
+    //             });
+    //         } else {
+    //             console.error("Error during login:", error);
+    
+    //             Swal.fire({
+    //                 title: 'Failed!',
+    //                 text: 'Invalid Email or Password',
+    //                 icon: 'error',
+    //                 confirmButtonText: 'Back'
+    //             });
+    //         }
+    //     }
+    // };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-gray-900">
             <div className="w-full max-w-md p-8 space-y-8 bg-white/20 backdrop-blur-lg shadow-lg rounded-lg border border-white/30">
                 <h2 className="text-3xl font-bold text-white text-center">Login</h2>
-                <form onSubmit={emailPasswordLogin} className="space-y-6">
+                <form onSubmit={handleLogin} className="space-y-6">
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-200">
                             Email
